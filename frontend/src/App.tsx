@@ -1,5 +1,5 @@
 
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, SyntheticEvent, useState } from 'react';
 import { searchCompanies } from './api';
 import './App.css';
 import { CompanySearch } from './company';
@@ -9,12 +9,12 @@ function App() {
   const [search, setSearch] = useState <string>("")
   const [searchResult,setSearchResult] = useState <CompanySearch[]>([])
   const [serverError,setServerError]=useState<String>("")
-  const handleEvent = (e:ChangeEvent<HTMLInputElement>) :void => {
+  const handleSearchChange = (e:ChangeEvent<HTMLInputElement>) :void => {
     setSearch(e.target.value);
   }
 
-  const onClick = async (e:React.MouseEvent<HTMLButtonElement>): Promise<void> => {
-    console.log("Log clicked...");
+  const onSearchSubmit = async (e:SyntheticEvent) => {
+
    const result =  await searchCompanies(search);
    if(result){
    if(typeof result == "string"){
@@ -28,12 +28,16 @@ function App() {
     setServerError("No responsse received from the server")
   }
   }
+  const onPortfolioCreate = (e:SyntheticEvent)=>{
+    e.preventDefault();
+    console.log(e.target);
+  }
 
   return (
     <div className="App">
-      <Search onClick={onClick} search={search} handleEvent={handleEvent} />
+      <Search onSearchSubmit={onSearchSubmit} search={search} handleSearchChange={handleSearchChange} />
       {serverError && <h1>{serverError}</h1>}
-      <CardList/>
+      <CardList searchResult={searchResult} onPortfolioCreate={onPortfolioCreate}/>
     </div>
   );
 }
